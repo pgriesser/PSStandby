@@ -5,6 +5,7 @@ PSStandby is a small PowerShell module that puts Windows into standby.
 It supports:
 - S0 low-power idle (Modern Standby)
 - S3 standby (classic sleep)
+- S4 hibernation
 - Optional delay before entering standby
 - Aborting if input is detected
 - Running from session 0 (for example, via Task Scheduler)
@@ -36,6 +37,9 @@ Enter-Standby -DelaySeconds 30
 
 # Enter standby after 30 seconds if no input is detected
 Enter-Standby -DelaySeconds 30 -AbortOnInput
+
+# Hibernate immediately
+Enter-Standby -Hibernate
 ```
 
 ## Scheduled Task note

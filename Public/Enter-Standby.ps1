@@ -18,6 +18,9 @@ function Enter-Standby {
     detected during the delay period.
     Only applicable when used together with (non-zero) DelaySeconds.
 
+    .PARAMETER Hibernate
+    If specified, the system will hibernate instead of entering standby.
+
     .OUTPUTS
     $true if standby was successfully initiated
     $false if input was detected
@@ -37,6 +40,12 @@ function Enter-Standby {
 
     If no user input (e.g. mouse movement or keyboard input) is detected
     for the next 30 seconds, enters standby.
+
+    .EXAMPLE
+    Enter-Standby -Hibernate
+
+    Hibernates the system instead of entering standby.
+    Can also be combined with the delay and abort options.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     Param(
@@ -45,7 +54,10 @@ function Enter-Standby {
         [int]$DelaySeconds = 0,
 
         [Parameter()]
-        [switch]$AbortOnInput
+        [switch]$AbortOnInput,
+
+        [Parameter()]
+        [switch]$Hibernate
     )
 
     # Check if we're in Session 0
@@ -65,7 +77,10 @@ function Enter-Standby {
             }
         }
 
-        if ((Get-PowerCapabilities).AoAc) {
+        if ($Hibernate) {
+            Enter-Hibernation
+        }
+        elseif ((Get-PowerCapabilities).AoAc) {
             Invoke-FromInteractiveSession -ScriptPath $script:ModernStandbyPSScriptPath
         }
         else {
@@ -94,7 +109,10 @@ function Enter-Standby {
             }
         }
 
-        if ((Get-PowerCapabilities).AoAc) {
+        if ($Hibernate) {
+            Enter-Hibernation
+        }
+        elseif ((Get-PowerCapabilities).AoAc) {
             Enter-S0ix
         }
         else {
