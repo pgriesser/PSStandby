@@ -19,7 +19,8 @@ function Enter-Standby {
     Only applicable when used together with (non-zero) DelaySeconds.
 
     .OUTPUTS
-    None
+    $true if standby was successfully initiated
+    $false if input was detected
 
     .EXAMPLE
     Enter-Standby
@@ -56,7 +57,7 @@ function Enter-Standby {
                 $uninterrupted = Invoke-FromInteractiveSession -ScriptPath $script:InterruptibleSleepPSScriptPath -CommandParameters "-Seconds $DelaySeconds"
 
                 if (-not $uninterrupted) {
-                    return
+                    return $false
                 }
             }
             else {
@@ -70,6 +71,8 @@ function Enter-Standby {
         else {
             Enter-S3
         }
+
+        return $true
     }
     else {
         if (-not $PSBoundParameters.ContainsKey("DelaySeconds")) {
@@ -83,7 +86,7 @@ function Enter-Standby {
                 if (-not $uninterrupted) {
                     $PSCmdlet.ShouldProcess("this", "Operation aborted due to user input") | Out-Null
 
-                    return
+                    return $false
                 }
             }
             else {
@@ -97,5 +100,7 @@ function Enter-Standby {
         else {
             Enter-S3
         }
+
+        return $true
     }
 }

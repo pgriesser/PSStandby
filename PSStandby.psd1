@@ -1,6 +1,6 @@
 @{
     RootModule             = 'PSStandby.psm1'
-    ModuleVersion          = '1.0.0'
+    ModuleVersion          = '1.1.0'
     GUID                   = 'a7f5d9e2-1b3c-4f8a-9d2e-5c7a1f3b8e9d'
     Author                 = 'Philipp Grießer'
     Description            = 'Module to enter standby with delay and session 0 support.'
