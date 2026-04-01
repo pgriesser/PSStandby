@@ -3,16 +3,19 @@ function Invoke-FromInteractiveSession {
     Param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$ScriptPath
+        [string]$ScriptPath,
+
+        [Parameter()]
+        [string]$CommandParameters
     )
 
     $sessionID = (Get-Process -Name explorer | Select-Object -First 1).SessionId
 
-    # using PsExec
     if ($PSCmdlet.ShouldProcess("Session $sessionID", "Invoke $(Split-Path -Leaf $ScriptPath)")) {
-        $command = "Invoke-Expression ([string]::join([environment]::newline,(Get-Content $ScriptPath))) ; $($(Get-FunctionName -ScriptPath $ScriptPath))"
+        $command = "Invoke-Expression ([string]::join([environment]::newline,(Get-Content $ScriptPath))) ; `$result = ($(Get-FunctionName -ScriptPath $ScriptPath) $CommandParameters) ; if (`$result -is [bool]) { exit ([int](-not `$result)) }"
 
-        psexec -i $sessionID powershell.exe -NoLogo -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command "& $command"
+        psexec -nobanner -i $sessionID powershell.exe -NoLogo -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command "& $command" | Out-Null
+        return $LASTEXITCODE -eq 0
     }
 }
 

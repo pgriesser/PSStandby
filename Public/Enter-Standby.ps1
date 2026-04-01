@@ -13,6 +13,11 @@ function Enter-Standby {
     Delay in seconds before entering standby. Default is 0 (immediate).
     Must be between 0 and 3600 (1 hour).
 
+    .PARAMETER AbortOnInput
+    If specified, the standby operation will be aborted if user input is
+    detected during the delay period.
+    Only applicable when used together with (non-zero) DelaySeconds.
+
     .OUTPUTS
     None
 
@@ -25,12 +30,21 @@ function Enter-Standby {
     Enter-Standby -DelaySeconds 30
 
     Waits 30 seconds, then enters standby.
+
+    .EXAMPLE
+    Enter-Standby -DelaySeconds 30 -AbortOnInput
+
+    If no user input (e.g. mouse movement or keyboard input) is detected
+    for the next 30 seconds, enters standby.
     #>
     [CmdletBinding(SupportsShouldProcess)]
     Param(
         [Parameter()]
         [ValidateRange(0, 3600)]
-        [int]$DelaySeconds = 0
+        [int]$DelaySeconds = 0,
+
+        [Parameter()]
+        [switch]$AbortOnInput
     )
 
     # Check if we're in Session 0
@@ -38,7 +52,16 @@ function Enter-Standby {
     
     if ($currentSessionId -eq 0) {
         if ($DelaySeconds -gt 0) {
-            Start-Sleep -Seconds $DelaySeconds
+            if ($AbortOnInput) {
+                $uninterrupted = Invoke-FromInteractiveSession -ScriptPath $script:InterruptibleSleepPSScriptPath -CommandParameters "-Seconds $DelaySeconds"
+
+                if (-not $uninterrupted) {
+                    return
+                }
+            }
+            else {
+                Start-Sleep -Seconds $DelaySeconds
+            }
         }
 
         if ((Get-PowerCapabilities).AoAc) {
@@ -54,7 +77,18 @@ function Enter-Standby {
         }
 
         if ($DelaySeconds -gt 0) {
-            Start-Sleep -Seconds $DelaySeconds
+            if ($AbortOnInput) {
+                $uninterrupted = Start-InterruptibleSleep -Seconds $DelaySeconds
+
+                if (-not $uninterrupted) {
+                    $PSCmdlet.ShouldProcess("this", "Operation aborted due to user input") | Out-Null
+
+                    return
+                }
+            }
+            else {
+                Start-Sleep -Seconds $DelaySeconds
+            }
         }
 
         if ((Get-PowerCapabilities).AoAc) {

@@ -6,6 +6,7 @@ It supports:
 - S0 low-power idle (Modern Standby)
 - S3 standby (classic sleep)
 - Optional delay before entering standby
+- Aborting if input is detected
 - Running from session 0 (for example, via Task Scheduler)
 
 ## Exported command
@@ -32,6 +33,9 @@ Enter-Standby
 
 # Wait 30 seconds, then enter standby
 Enter-Standby -DelaySeconds 30
+
+# Enter standby after 30 seconds if no input is detected
+Enter-Standby -DelaySeconds 30 -AbortOnInput
 ```
 
 ## Scheduled Task note
