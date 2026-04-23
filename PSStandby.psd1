@@ -12,7 +12,7 @@
     AliasesToExport      = @()
     PrivateData          = @{
         PSData = @{
-            Tags = @('Sleep', 'Standby', 'Modern Standby', 'Hibernation', 'Windows')
+            Tags = @('Sleep', 'Standby', 'ModernStandby', 'Hibernation', 'Windows')
             ProjectUri = 'https://github.com/pgriesser/PSStandby'
         }
     }
